@@ -120,7 +120,7 @@ class Public_ConfigOp:
                 rt = self.__creatError(e.message)
         return rt
 
-    def ReadConfig(self, section, subNode, Type='str', defaultValue=''):
+    def ReadConfig(self, section, subNode, Type='str', defaultValue='',comment=''):
         rt = self.FileContent
         NoSection = True
         NoOption = True
@@ -179,9 +179,12 @@ class Public_ConfigOp:
             except Exception as e:
                 rt = self.__creatError(e.message)
 
-        # 设置默认值
-        if '' != defaultValue:
-            if (True is NoSection) or (True is NoOption):
+        if (True is NoSection) or (True is NoOption):
+            if '' != comment:
+                self.SaveConfig(section, comment)
+
+            # 设置默认值
+            if '' != defaultValue:
                 self.SaveConfig(section, subNode, defaultValue)
                 logger.info('文件:[{path}]中[{section}][{sub}]已设置为默认值[{value}]'.format(path=self.configFilePath,
                                                                                     section=section, sub=subNode,
@@ -190,8 +193,9 @@ class Public_ConfigOp:
         rt.append(NoOption)
         return rt
 
-    def SetConfig(self, Section, Option, OptContent):
-        OptContent = str(OptContent)
+    def SetConfig(self, Section, Option, OptContent=None):
+        if None is not OptContent:
+            OptContent = str(OptContent)
         if False is os.path.exists(os.path.dirname(self.configFilePath)):
             os.makedirs(os.path.dirname(self.configFilePath))
         try:
@@ -211,8 +215,9 @@ class Public_ConfigOp:
         if True is ifSave:
             self.config.write(open(self.configFilePath, "w+"), space_around_delimiters=False)
 
-    def SaveConfig(self, Section, Option, OptContent):
-        OptContent = str(OptContent)
+    def SaveConfig(self, Section, Option, OptContent=None):
+        if None is not OptContent:
+            OptContent = str(OptContent)
         if False is os.path.exists(os.path.dirname(self.configFilePath)):
             dirName = os.path.dirname(self.configFilePath)
             if '' != dirName:
